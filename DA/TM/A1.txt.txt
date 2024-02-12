@@ -1,0 +1,202 @@
+seta 2)
+Create ‘realestate’ Data set having 4 columns namely: ID,flat, houses and purchases (random 500
+entries). Build a linear regression model by identifying independent and target variable. Split the
+variables into training and testing sets and print them. Build a simple linear regression model for
+predicting purchases
+
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Create a synthetic dataset
+data = {
+    'ID': range(1, 501),
+    'flat': np.random.randint(1, 6, 500),
+    'houses': np.random.randint(1, 6, 500),
+    'purchases': np.random.randint(100, 1000, 500)
+}
+
+df = pd.DataFrame(data)
+
+# Display the first few rows of the dataset
+print("Dataset:")
+print(df.head())
+
+# Identify independent (X) and target (y) variables
+X = df[['flat', 'houses']]
+y = df['purchases']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Display the shapes of the training and testing sets
+print("\nTraining set shapes:")
+print(f"X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")
+print("\nTesting set shapes:")
+print(f"X_test shape: {X_test.shape}, y_test shape: {y_test.shape}")
+
+# Build a linear regression model
+model = LinearRegression()
+
+# Train the model on the training set
+model.fit(X_train, y_train)
+
+# Make predictions on the testing set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("\nModel Evaluation:")
+print(f"Mean Squared Error: {mse}")
+print(f"R-squared: {r2}")
+
+# Plotting predictions vs actual values
+plt.scatter(y_test, y_pred)
+plt.xlabel("Actual Purchases")
+plt.ylabel("Predicted Purchases")
+plt.title("Actual Purchases vs Predicted Purchases")
+plt.show()
+----------------------------------------------------------
+3)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Create a synthetic dataset
+data = {
+    'User ID': range(1, 501),
+
+    'Gender': np.random.choice(['Male', 'Female'], size=500),
+    'Age': np.random.randint(18, 65, 500),
+    'EstimatedSalary': np.random.randint(20000, 100000, 500),
+    'Purchased': np.random.choice([0, 1], size=500)  # 0: Not purchased, 1: Purchased
+}
+
+df = pd.DataFrame(data)
+
+# Display the first few rows of the dataset
+print("Dataset:")
+print(df.head())
+
+# Identify independent (X) and target (y) variables
+X = df[['Age', 'EstimatedSalary']]
+y = df['Purchased']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the features (optional, but can help logistic regression)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Build a logistic regression model
+model = LogisticRegression(random_state=42)
+
+# Train the model on the training set
+model.fit(X_train_scaled, y_train)
+
+# Make predictions on the testing set
+y_pred = model.predict(X_test_scaled)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+print("\nModel Evaluation:")
+print(f"Accuracy: {accuracy}")
+print("\nConfusion Matrix:")
+print(conf_matrix)
+print("\nClassification Report:")
+print(class_report)
+
+# Plotting the decision boundary (for 2D features)
+if X.shape[1] == 2:
+    sns.set(style="whitegrid")
+    plt.figure(figsize=(10, 6))
+
+    # Plotting the training points
+    sns.scatterplot(x=X_train['Age'], y=X_train['EstimatedSalary'], hue=y_train, palette='Set1', marker='o', s=100)
+
+    # Plotting the decision boundary
+    ax = plt.gca()
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+
+    # Create grid to evaluate model
+    xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 100),
+                         np.linspace(ylim[0], ylim[1], 100))
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+
+    # Put the result into a color plot
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap='viridis', alpha=0.3)
+
+    plt.title('Logistic Regression Decision Boundary')
+    plt.xlabel('Age')
+    plt.ylabel('EstimatedSalary')
+    plt.legend(loc='upper right')
+    plt.show()
+----------------------------------------------------------
+setb2)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.datasets import load_iris
+
+# Load the Iris dataset
+iris = load_iris()
+iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+iris_df['species'] = iris.target_names[iris.target]
+
+# View basic statistical details for each species
+species_details = iris_df.groupby('species').describe()
+print("\nBasic Statistical Details:")
+print(species_details)
+
+# Identify independent (X) and target (y) variables
+X = iris_df.iloc[:, :4]  # Features: sepal length, sepal width, petal length, petal width
+y = iris_df['species']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Build a logistic regression model
+model = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=1000, random_state=42)
+
+# Train the model on the training set
+model.fit(X_train, y_train)
+
+# Make predictions on the testing set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+print("\nModel Evaluation:")
+print(f"Accuracy: {accuracy}")
+print("\nConfusion Matrix:")
+print(conf_matrix)
+print("\nClassification Report:")
+print(class_report)
